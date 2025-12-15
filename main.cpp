@@ -8,9 +8,15 @@
 
 using namespace std;
 
+// [SỬA LỖI TẠI ĐÂY]
+// Đặt dòng khởi tạo biến static ở file .cpp (Global Scope)
+vector<vector<double>> DistanceManager::matrix;
+
 int main() {
     srand(time(0));
     cout << "--- HE THONG TOI UU LO TRINH (HIGH PERFORMANCE) ---" << endl;
+
+    // ... (Giữ nguyên toàn bộ phần còn lại của hàm main)
 
     // 1. Đọc dữ liệu
     vector<City> cities = readCitiesFromFile("input.txt");
@@ -24,32 +30,24 @@ int main() {
 
     cout << fixed << setprecision(2);
 
-    // Biến cho Early Stopping
     int stagnantGenerations = 0;
     double bestFitnessSeen = 0.0;
 
-    // 3. Chạy thuật toán
     cout << "Bat dau tien hoa..." << endl;
 
     for (int i = 0; i < MAX_GENERATIONS; i++) {
         pop = GA::evolvePopulation(pop, cities);
-
         Tour currentBest = pop.getFittest();
         double currentFit = currentBest.getFitness();
 
-        // [TỐI ƯU 2] KIỂM TRA DỪNG SỚM
         if (currentFit > bestFitnessSeen) {
             bestFitnessSeen = currentFit;
-            stagnantGenerations = 0; // Có tiến bộ -> Reset đếm
-
-            // [TỐI ƯU 3] CHỈ CHẠY 2-OPT KHI CÓ KẾT QUẢ TRIỂN VỌNG MỚI
-            // Không chạy liên tục gây chậm máy
+            stagnantGenerations = 0;
             if (i > 10) currentBest.twoOpt();
         } else {
             stagnantGenerations++;
         }
 
-        // Nếu 40 thế hệ liên tiếp không khá hơn -> DỪNG LUÔN
         if (stagnantGenerations >= 40) {
             cout << "\n[INFO] DA HOI TU SOM TAI THE HE: " << i << " (Early Stopping)" << endl;
             break;
@@ -61,9 +59,8 @@ int main() {
         }
     }
 
-    // 4. Kết quả & Chạy 2-Opt lần cuối cùng (Vét cạn lỗi)
     Tour finalBest = pop.getFittest();
-    finalBest.twoOpt(); // Chạy kỹ lần cuối
+    finalBest.twoOpt();
 
     cout << "\n--- KET QUA CUOI CUNG ---" << endl;
     cout << "Tong Quang Duong: " << finalBest.getDistance() << " km" << endl;

@@ -9,12 +9,12 @@
 
 using namespace std;
 
-// --- [TỐI ƯU 1] CACHE KHOẢNG CÁCH (LOOKUP TABLE) ---
+// --- CLASS QUẢN LÝ KHOẢNG CÁCH ---
 class DistanceManager {
 public:
+    // Chỉ khai báo static ở đây (Declaration)
     static vector<vector<double>> matrix;
 
-    // Hàm khởi tạo bảng khoảng cách O(N^2)
     static void initMatrix(const vector<City>& cities) {
         int n = cities.size();
         matrix.resize(n, vector<double>(n, 0.0));
@@ -26,20 +26,21 @@ public:
         }
     }
 
-    // Hàm lấy khoảng cách siêu nhanh O(1)
     static double getDistance(int index1, int index2) {
         return matrix[index1][index2];
     }
 };
 
-// Khởi tạo biến static
-vector<vector<double>> DistanceManager::matrix;
+// [QUAN TRỌNG] ĐÃ XÓA DÒNG KHỞI TẠO TẠI ĐÂY ĐỂ TRÁNH LỖI LINKER SAU NÀY
+// Dòng bị xóa: vector<vector<double>> DistanceManager::matrix;
 
 // --- CLASS TOUR ---
 class Tour {
+    // ... (Giữ nguyên toàn bộ code class Tour bên dưới)
+    // ...
 private:
-    vector<int> cityIndices; // Lưu index thay vì object (Nhẹ hơn)
-    vector<City>* refCities; // Tham chiếu danh sách gốc
+    vector<int> cityIndices;
+    vector<City>* refCities;
     double fitness = 0;
     double totalDistance = 0;
     double totalTime = 0;
@@ -52,6 +53,7 @@ public:
         for(int i=0; i<sourceCities.size(); i++) cityIndices.push_back(i);
     }
 
+    // ... (Giữ nguyên các hàm bên trong Tour)
     void generateIndividual() { random_shuffle(cityIndices.begin(), cityIndices.end()); }
 
     City getCity(int tourPos) const { return (*refCities)[cityIndices[tourPos]]; }
@@ -69,35 +71,22 @@ public:
         return false;
     }
 
-    // --- HÀM TÍNH TOÁN (ĐÃ SỬA LỖI TRUYỀN THAM SỐ GIỜ) ---
     void calculateMetrics() {
         if (combinedCost != 0) return;
         double d = 0;
         double t = 0;
-
-        // Giả sử xe bắt đầu chạy lúc 8:00 sáng
         double currentTime = 8.0;
 
         for (int i = 0; i < tourSize(); i++) {
             int idxFrom = getCityIndex(i);
             int idxTo = getCityIndex((i + 1) % tourSize());
-
-            // 1. Lấy khoảng cách từ Cache O(1)
             double dist = DistanceManager::getDistance(idxFrom, idxTo);
-
-            // 2. Lấy thành phố đích để check kẹt xe
             City targetCity = getCity((i + 1) % tourSize());
-
-            // [FIX LỖI] Truyền currentTime vào hàm getSpeedInZone
             double speed = targetCity.getSpeedInZone(currentTime);
-
-            // Tính thời gian đi đoạn đường này
             double travelTime = dist / speed;
 
             d += dist;
             t += travelTime;
-
-            // Cập nhật giờ hiện tại cho chặng tiếp theo
             currentTime += travelTime;
         }
         totalDistance = d;
@@ -115,7 +104,6 @@ public:
         return fitness;
     }
 
-    // Hàm 2-Opt (Tối ưu cục bộ)
     void twoOpt() {
         int size = tourSize();
         bool improvement = true;
@@ -144,6 +132,7 @@ public:
 
 // --- CLASS POPULATION ---
 class Population {
+    // ... (Giữ nguyên code Class Population)
 private:
     vector<Tour> tours;
 public:
@@ -171,23 +160,21 @@ public:
 
 // --- CLASS GA ---
 class GA {
+    // ... (Giữ nguyên code Class GA)
 public:
     static Population evolvePopulation(Population& pop, vector<City>& refCities) {
         Population newPopulation(pop.populationSize(), false, refCities);
-
         int elitismOffset = 0;
         if (ELITISM) {
             newPopulation.saveTour(0, pop.getFittest());
             elitismOffset = 1;
         }
-
         for (int i = elitismOffset; i < pop.populationSize(); i++) {
             Tour parent1 = tournamentSelection(pop);
             Tour parent2 = tournamentSelection(pop);
             Tour child = crossover(parent1, parent2, refCities);
             newPopulation.saveTour(i, child);
         }
-
         for (int i = elitismOffset; i < newPopulation.populationSize(); i++) {
             mutate(newPopulation.getTour(i));
         }
@@ -197,17 +184,14 @@ public:
     static Tour crossover(Tour parent1, Tour parent2, vector<City>& refCities) {
         Tour child(refCities);
         for(int k=0; k<child.tourSize(); k++) child.setCityIndex(k, -1);
-
         int size = parent1.tourSize();
         int startPos = rand() % size;
         int endPos = rand() % size;
         if (startPos > endPos) swap(startPos, endPos);
-
         for (int i = 0; i < size; i++) {
             if (i >= startPos && i <= endPos)
                 child.setCityIndex(i, parent1.getCityIndex(i));
         }
-
         for (int i = 0; i < size; i++) {
             int currentCityIdx = parent2.getCityIndex(i);
             if (!child.containsCityIndex(currentCityIdx)) {
@@ -244,4 +228,5 @@ public:
         return best;
     }
 };
+
 #endif

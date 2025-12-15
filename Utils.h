@@ -41,34 +41,19 @@ void exportToHTML(Tour bestTour, string filename, double distance, double time) 
     <head>
         <meta charset="UTF-8">
         <title>Lộ Trình Giao Hàng</title>
+
         <link rel="stylesheet" href="style.css">
+
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
         <style>
-            /* CSS cho icon số thứ tự */
-            .custom-div-icon { background: transparent; border: none; }
-            .marker-pin {
-                width: 30px; height: 30px; border-radius: 50% 50% 50% 0;
-                background: #c0392b; position: absolute; transform: rotate(-45deg);
-                left: 50%; top: 50%; margin: -15px 0 0 -15px;
-                box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-            }
-            .marker-pin::after {
-                content: ''; width: 20px; height: 20px; margin: 5px 0 0 5px;
-                background: #fff; position: absolute; border-radius: 50%;
-            }
-            .marker-number {
-                position: absolute; top: -2px; left: 0; width: 30px;
-                text-align: center; font-weight: bold; font-size: 14px; color: #333; z-index: 100;
-            }
-            /* Loading Spinner */
-            .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 10px;}
-            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+             /* Mọi style quan trọng đã chuyển sang style.css */
         </style>
     </head>
     <body>
         <div class="container">
             <h1>Lộ Trình Giao Hàng Tối Ưu</h1>
-            <div class="subtitle">Đồ án môn Lý thuyết Đồ thị - Nhóm 4</div>
+            <div class="subtitle">Đồ án môn Lý thuyết Đồ thị</div>
 
             <div class="stats-row">
                 <div class="stat-card">

@@ -1,0 +1,31 @@
+# --- 1. Thư mục Build của CLion (QUAN TRỌNG NHẤT) ---
+# Loại bỏ các folder chứa file tạm khi chạy code
+cmake-build-debug/
+cmake-build-release/
+cmake-build-*/
+build/
+
+# --- 2. Cấu hình IDE (CLion) ---
+# Không nên đưa cài đặt giao diện cá nhân lên Git
+.idea/
+.vscode/
+*.user
+
+# --- 3. File thực thi và file tạm (Compiled Object files) ---
+*.exe
+*.dll
+*.o
+*.obj
+*.lib
+*.a
+*.so
+*.dylib
+
+# --- 4. File hệ thống (Rác của Windows/Mac) ---
+.DS_Store
+Thumbs.db
+
+# --- 5. File Output của chương trình ---
+# File HTML này do code tự sinh ra mỗi lần chạy, không cần lưu trữ
+*.html
+# Giữ lại input.txt (không liệt kê vào đây) để người khác có dữ liệu test
