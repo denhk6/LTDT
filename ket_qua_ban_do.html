@@ -72,8 +72,8 @@
 
                 let bgColor = '#27ae60';
                 if(index === 0) bgColor = '#2c3e50';
-                else if(pt.traffic === 2) bgColor = '#f39c12';
-                else if(pt.traffic === 3) bgColor = '#c0392b';
+                else if(pt.traffic == 2) bgColor = '#f39c12';
+                else if(pt.traffic == 3) bgColor = '#c0392b';
 
                 var myIcon = L.divIcon({
                     className: 'custom-div-icon', // Class này phải khớp với CSS ở trên
@@ -83,7 +83,7 @@
                     iconAnchor: [15, 42]
                 });
 
-                let status = pt.traffic === 3 ? 'Kẹt xe' : (pt.traffic === 2 ? 'Đông' : 'Thoáng');
+                let status = pt.traffic == 3 ? 'Kẹt xe' : (pt.traffic == 2 ? 'Đông' : 'Thoáng');
                 L.marker([pt.lat, pt.lon], {icon: myIcon}).addTo(map)
                  .bindPopup(`<b>TRẠM ${index}: ${pt.name}</b><br>Tình trạng: ${status}`);
             });

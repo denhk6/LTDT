@@ -1,74 +1,82 @@
 #include <iostream>
-#include <ctime>
-#include <iomanip>
-#include "Constants.h"
-#include "City.h"
-#include "GeneticAlgo.h"
-#include "Utils.h"
+#include "Database/CityDAO.h"  // Gọi DAO
+#include "Algorithms/GeneticAlgo.h"
+#include "Utils/Utils.h"
 
 using namespace std;
 
-// [SỬA LỖI TẠI ĐÂY]
-// Đặt dòng khởi tạo biến static ở file .cpp (Global Scope)
+// Biến static của lớp DistanceManager (Đặt ở đây vì file .cpp của GeneticAlgo chưa tách riêng)
 vector<vector<double>> DistanceManager::matrix;
+
+void showMenu() {
+    cout << "\n=== MENU ===" << endl;
+    cout << "1. Chay thuat toan tim duong (GA)" << endl;
+    cout << "2. Them dia diem moi" << endl;
+    cout << "0. Thoat" << endl;
+    cout << "Chon: ";
+}
+
+void inputNewCity(CityDAO& dao) {
+    string name;
+    double lat, lon;
+    int traffic;
+
+    cout << "Nhap ten (khong dau): "; cin >> name;
+    cout << "Vi do: "; cin >> lat;
+    cout << "Kinh do: "; cin >> lon;
+    cout << "Muc do ket xe (1-3): "; cin >> traffic;
+
+    City newCity(name, lat, lon, traffic);
+    if(dao.addCity(newCity)) {
+        cout << "-> Them thanh cong!" << endl;
+    } else {
+        cout << "-> Them that bai!" << endl;
+    }
+}
 
 int main() {
     srand(time(0));
-    cout << "--- HE THONG TOI UU LO TRINH (HIGH PERFORMANCE) ---" << endl;
+    const char* DB_FILE = "MyCityData.db";
 
-    // ... (Giữ nguyên toàn bộ phần còn lại của hàm main)
+    // 1. Khởi tạo lớp truy cập dữ liệu
+    CityDAO dao(DB_FILE);
+    dao.initialize(); // Tự động tạo bảng/data nếu chưa có
 
-    // 1. Đọc dữ liệu
-    vector<City> cities = readCitiesFromFile("input.txt");
+    int choice;
+    do {
+        showMenu();
+        cin >> choice;
 
-    // [TỐI ƯU 1] KHỞI TẠO MA TRẬN KHOẢNG CÁCH (Chạy 1 lần duy nhất)
-    cout << "Dang xay dung ma tran khoang cach (O(N^2))..." << endl;
-    DistanceManager::initMatrix(cities);
+        if (choice == 1) {
+            // Lấy dữ liệu mới nhất từ DB
+            vector<City> cities = dao.getAllCities();
+            if(cities.empty()) {
+                cout << "Chua co du lieu!" << endl;
+                continue;
+            }
 
-    // 2. Khởi tạo
-    Population pop(POPULATION_SIZE, true, cities);
+            cout << "--- BAT DAU TIM DUONG VOI " << cities.size() << " DIEM ---" << endl;
 
-    cout << fixed << setprecision(2);
+            // Khởi tạo ma trận & Quần thể
+            DistanceManager::initMatrix(cities);
+            Population pop(POPULATION_SIZE, true, cities);
 
-    int stagnantGenerations = 0;
-    double bestFitnessSeen = 0.0;
+            // Chạy thuật toán (Code cũ của bạn)
+            for (int i = 0; i < MAX_GENERATIONS; i++) {
+                pop = GA::evolvePopulation(pop, cities);
+            }
 
-    cout << "Bat dau tien hoa..." << endl;
+            Tour best = pop.getFittest();
+            best.twoOpt(); // Tối ưu lần cuối
 
-    for (int i = 0; i < MAX_GENERATIONS; i++) {
-        pop = GA::evolvePopulation(pop, cities);
-        Tour currentBest = pop.getFittest();
-        double currentFit = currentBest.getFitness();
+            cout << "Ket qua: " << best.getDistance() << " km" << endl;
+            exportToHTML(best, "ket_qua.html", best.getDistance(), best.getTime());
 
-        if (currentFit > bestFitnessSeen) {
-            bestFitnessSeen = currentFit;
-            stagnantGenerations = 0;
-            if (i > 10) currentBest.twoOpt();
-        } else {
-            stagnantGenerations++;
+        } else if (choice == 2) {
+            inputNewCity(dao);
         }
 
-        if (stagnantGenerations >= 40) {
-            cout << "\n[INFO] DA HOI TU SOM TAI THE HE: " << i << " (Early Stopping)" << endl;
-            break;
-        }
+    } while (choice != 0);
 
-        if(i % 50 == 0) {
-             cout << "Gen " << setw(3) << i
-                  << " | Quang duong: " << currentBest.getDistance() << " km" << endl;
-        }
-    }
-
-    Tour finalBest = pop.getFittest();
-    finalBest.twoOpt();
-
-    cout << "\n--- KET QUA CUOI CUNG ---" << endl;
-    cout << "Tong Quang Duong: " << finalBest.getDistance() << " km" << endl;
-    cout << "Tong Thoi Gian:   " << finalBest.getTime() << " gio" << endl;
-
-    exportToHTML(finalBest, "ket_qua_ban_do.html", finalBest.getDistance(), finalBest.getTime());
-
-    cout << "\n(Nhan Enter de thoat...)";
-    cin.ignore(); cin.get();
     return 0;
 }
