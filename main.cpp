@@ -86,6 +86,7 @@ void showMenu() {
     cout << "7. Xoa lich su" << endl;
     cout << "8. Mo cong cu lay toa do (Map Picker)" << endl; // <--- MỚI
     cout << "0. Thoat" << endl;
+    cout << "Chon chuc nang : ";
 }
 
 int main() {
