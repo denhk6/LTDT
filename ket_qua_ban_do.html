@@ -3,33 +3,40 @@
     <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Lộ Trình Giao Hàng</title>
-
+        <title>Dashboard Giao Hàng</title>
         <link rel="stylesheet" href="style.css">
-
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-        <style>
-             /* Mọi style quan trọng đã chuyển sang style.css */
-        </style>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
         <div class="container">
             <h1>Lộ Trình Giao Hàng Tối Ưu</h1>
-            <div class="subtitle">Đồ án môn Lý thuyết Đồ thị</div>
+            <div class="subtitle">Đồ án Kỹ thuật Phần mềm & Graph Theory</div>
 
             <div class="stats-row">
                 <div class="stat-card">
-                    <div class="stat-value">26.09 km</div><div class="stat-label">Tổng Quãng Đường</div></div>
+                    <div class="stat-value">30.42 km</div><div class="stat-label">Tổng Quãng Đường</div></div>
                 <div class="stat-card time">
-                    <div class="stat-value">5.23 giờ</div><div class="stat-label">Thời Gian Dự Kiến</div></div>
+                    <div class="stat-value">4.26 giờ</div><div class="stat-label">Thời Gian Dự Kiến</div></div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
+                     <div class="stat-value">GA</div>
+                     <div class="stat-label">Thuật toán Di truyền</div>
+                </div>
             </div>
 
-            <div id="status-bar" style="text-align:center; color:#555; margin-bottom:10px; font-style:italic;">
-                <div id="loading" class="loader"></div> <span id="status-text">Đang kết nối vệ tinh tìm đường...</span>
-            </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 6; min-width: 300px;">
+                    <div id="status-bar" style="text-align:center; color:#555; margin-bottom:10px; font-style:italic;">
+                        <div id="loading" class="loader"></div> <span id="status-text">Đang tối ưu lộ trình...</span>
+                    </div>
+                    <div id="map"></div>
+                </div>
 
-            <div id="map"></div>
+                <div style="flex: 4; min-width: 300px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #ddd;">
+                    <h3 style="text-align:center; color:#555;">Tiến trình Tối ưu hóa (Generations)</h3>
+                    <canvas id="fitnessChart"></canvas>
+                </div>
+            </div>
 
             <div class="legend">
                 <div class="legend-item"><span class="dot" style="background-color:green;"></span>Thoáng</div>
@@ -41,34 +48,57 @@
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
         <script>
-            // TỌA ĐỘ TRUNG TÂM
-            var startLat = 10.82;
-            var startLon = 106.66;
+            // --- PHẦN 1: VẼ BIỂU ĐỒ (CHART.JS) ---
+            const ctx = document.getElementById('fitnessChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200],
+                    datasets: [{
+                        label: 'Quãng đường (km)',
+                        data: [33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,33.926973,30.420760],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.3, // Làm mượt đường cong
+                        pointRadius: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Thế hệ (Generation)' } },
+                        y: { title: { display: true, text: 'Km' } }
+                    }
+                }
+            });
 
+            // --- PHẦN 2: BẢN ĐỒ LEAFLET (GIỮ NGUYÊN) ---
+            var startLat = 10.81;
+            var startLon = 106.71;
             var map = L.map('map').setView([startLat, startLon], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19, attribution: '© OpenStreetMap'
-            }).addTo(map);
-
-            // DỮ LIỆU ĐIỂM ĐẾN
             var waypoints = [
-    {lat: 10.82, lon: 106.66, name: 'San_Bay_TSN', traffic: 3},
-{lat: 10.77, lon: 106.70, name: 'Cho_Ben_Thanh', traffic: 3},
-{lat: 10.77, lon: 106.70, name: 'Bitexco', traffic: 1},
-{lat: 10.79, lon: 106.71, name: 'Thao_Cam_Vien', traffic: 1},
-{lat: 10.79, lon: 106.72, name: 'Landmark_81', traffic: 2},
+    {lat: 10.81, lon: 106.71, name: 'ben_xe_mien_dong', traffic: 1},
 {lat: 10.80, lon: 106.71, name: 'DH_Hutech', traffic: 2},
-{lat: 10.82, lon: 106.66, name: 'Về đích', traffic: 1}
+{lat: 10.79, lon: 106.72, name: 'Landmark_81', traffic: 2},
+{lat: 10.79, lon: 106.71, name: 'Thao_Cam_Vien', traffic: 1},
+{lat: 10.77, lon: 106.70, name: 'Bitexco', traffic: 1},
+{lat: 10.76, lon: 106.68, name: 'dai_hoc_su_pham', traffic: 2},
+{lat: 10.82, lon: 106.66, name: 'San_Bay_TSN', traffic: 3},
+{lat: 10.81, lon: 106.71, name: 'Về đích', traffic: 1}
 
             ];
 
-            // 1. VẼ CÁC ĐIỂM MARKER (SỐ THỨ TỰ)
             var latlngs = [];
             waypoints.forEach((pt, index) => {
-                latlngs.push([pt.lat, pt.lon]); // Lưu tọa độ để vẽ đường
-
-                if (index === waypoints.length - 1) return; // Bỏ qua điểm cuối trùng lặp
+                latlngs.push([pt.lat, pt.lon]);
+                if (index === waypoints.length - 1) return;
 
                 let bgColor = '#27ae60';
                 if(index === 0) bgColor = '#2c3e50';
@@ -76,8 +106,7 @@
                 else if(pt.traffic == 3) bgColor = '#c0392b';
 
                 var myIcon = L.divIcon({
-                    className: 'custom-div-icon', // Class này phải khớp với CSS ở trên
-                    // HTML chỉ chứa 2 thẻ: div (giọt nước) và span (số)
+                    className: 'custom-div-icon',
                     html: `<div style="background-color: ${bgColor};" class="marker-pin"></div><span class="marker-number">${index}</span>`,
                     iconSize: [30, 42],
                     iconAnchor: [15, 42]
@@ -88,51 +117,33 @@
                  .bindPopup(`<b>TRẠM ${index}: ${pt.name}</b><br>Tình trạng: ${status}`);
             });
 
-            // 2. HÀM VẼ ĐƯỜNG THẲNG (DỰ PHÒNG KHI MẠNG LỖI)
             function drawStraightLines() {
                 var polyline = L.polyline(latlngs, {
                     color: '#3498db', weight: 4, opacity: 0.8, dashArray: '10, 10', lineJoin: 'round'
                 }).addTo(map);
                 map.fitBounds(polyline.getBounds());
-
-                // Cập nhật thông báo
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('status-text').innerHTML = "Đã hiển thị chế độ đường bay (Do máy chủ OSRM quá tải).";
+                document.getElementById('status-text').innerHTML = "Chế độ đường thẳng (Backup).";
                 document.getElementById('status-text').style.color = "orange";
             }
 
-            // 3. GỌI API TÌM ĐƯỜNG (CÓ TIMEOUT 3 GIÂY)
             var coordString = waypoints.map(pt => pt.lon + ',' + pt.lat).join(';');
             var url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
 
-            // Tạo bộ đếm thời gian: Quá 3 giây là hủy
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000);
 
             fetch(url, { signal: controller.signal })
-                .then(response => {
-                    if (!response.ok) throw new Error("Server Error");
-                    return response.json();
-                })
+                .then(response => { if (!response.ok) throw new Error("Err"); return response.json(); })
                 .then(data => {
                     if(data.code === 'Ok') {
-                        // Vẽ đường uốn lượn thành công
-                        L.geoJSON(data.routes[0].geometry, {
-                            style: { color: 'blue', weight: 5, opacity: 0.7 }
-                        }).addTo(map);
-
+                        L.geoJSON(data.routes[0].geometry, { style: { color: 'blue', weight: 5, opacity: 0.7 } }).addTo(map);
                         document.getElementById('loading').style.display = 'none';
-                        document.getElementById('status-text').innerText = "Đã tải xong lộ trình đường bộ thực tế!";
+                        document.getElementById('status-text').innerText = "Đã tải xong lộ trình đường bộ!";
                         document.getElementById('status-text').style.color = "green";
-                    } else {
-                        throw new Error("API Code not OK");
-                    }
+                    } else throw new Error("API not Ok");
                 })
-                .catch(err => {
-                    console.log("Lỗi tải đường bộ hoặc quá thời gian: ", err);
-                    drawStraightLines(); // GỌI HÀM VẼ THẲNG NGAY LẬP TỨC
-                });
-
+                .catch(err => { drawStraightLines(); });
         </script>
     </body>
     </html>
