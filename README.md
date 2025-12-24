@@ -1,7 +1,6 @@
 # 🚛 Hệ Thống Tối Ưu Lộ Trình Giao Hàng (Delivery Optimization System)
 
 > **Đồ án môn học:** Lý thuyết Đồ thị & Kỹ thuật Phần mềm  
-> **Sinh viên thực hiện:** Đăng  
 > **Trường:** Đại học Sư phạm TP.HCM (HCMUE)
 
 ## 📖 Giới thiệu
